@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding:utf-8
-
-__author__ = 'xmxoxo<xmxoxo@qq.com>'
+ # __author__ = 'xmxoxo<xmxoxo@qq.com>'
 
 '''
 标签提取工具是一个命令行工具，按照要求的格式把每个博主的所有博文保存在一个文件中，
@@ -45,6 +44,7 @@ import  csv
 import time
 from sklearn.metrics import classification_report
 from sklearn import metrics
+import datetime
 
 
 # get all files and floders in a path
@@ -221,7 +221,7 @@ def top_label (lstClass,bozhu_id,top,out):
     if  not os.path.exists(out):
         os.makedirs(out)
     dict_all = {}
-    dict_all['blog_ID']= bozhu_id
+    dict_all['platform_cid']= bozhu_id
     fn = './labels_list.txt'
     labels = load_labels(fn)
     print(labels)
@@ -238,13 +238,24 @@ def top_label (lstClass,bozhu_id,top,out):
     nret = [(labels[k[0]],float(k[1])) for k in label_ratio]
     print('最终提取标签Top-{}:'.format(int(top)))
     print(nret1)
-    dict_all['Top-all'] = nret
-    dict_all['Top-{}'.format(int(top))] = nret1
-    dict_all['time'] = lstClass[0]
+
+    # dict_all['Top-all'] = nret
+    dict_all['labels'.format(int(top))] = ','.join(nret1)
+    # dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # dict_all['time'] = lstClass[0]
+    # dict_all['time'] = dt
     print(dict_all)
     df = pd.DataFrame([dict_all])
-    df.to_csv(os.path.join(out,'result.csv'),encoding='utf-8',index=None)
-    return 0
+    from sqlalchemy import create_engine
+    user = 'fanhaojie'
+    passwd = 'Chenfan@123'
+    host = '10.228.86.203'
+    port = '11101'
+    dbname1 = 'test'
+    engine2 = create_engine("mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8" % (user, passwd, host, port, dbname1))
+    pd.io.sql.to_sql(df, 'bert_result', engine2, schema='test', if_exists='append',index = False)
+    # df.to_csv(os.path.join(out,'result.csv'),encoding='utf-8',index=None)
+    return df
 
 
 # 命令行处理
@@ -260,6 +271,7 @@ def main():
     top = args.top
     out = args.out
     model_preDir = args.model_preDir
+    df = None
     for dirname in os.listdir(path):
         if dirname.split('.')[-1] == 'csv':
             file_path = os.path.join(path, dirname)
@@ -267,7 +279,12 @@ def main():
             result,bozhu_id = preprocess(file_path)
             result_li = predict(result,model_preDir)
             top_label(result_li,bozhu_id,top,out)
-
+    #         if df is None:
+    #             df = taa.copy()
+    #         else:
+    #             df = pd.concat([df, taa], axis=0, sort=False)
+    #
+    # df.to_csv(os.path.join(out,'result.csv'),encoding='utf-8',index=None)
 
 
 if __name__ == '__main__':
