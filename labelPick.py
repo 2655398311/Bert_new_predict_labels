@@ -193,7 +193,6 @@ def predict (lstTxt,model_preDir):
         lstset = Counter(lst_ret)
         result.append(lstset)
         return result
-
     except:
         return ''
 
@@ -257,6 +256,22 @@ def top_label (lstClass,bozhu_id,top,out):
     # df.to_csv(os.path.join(out,'result.csv'),encoding='utf-8',index=None)
     return df
 
+'''
+把微博内容按博主拆分成单独的文件
+参数：
+    filename  数据文件名，csv格式
+    outpath   输出目录，默认为'./blog_floder/'
+    field     博主ID字段名，默认为'pltform_cid'
+输出结果
+    保存格式为csv格式，文件名为：博主ID.csv
+'''
+
+# def splitWeibo(filename,out_path = './blog_floder/',field = 'plarfoem_cid'):
+#     data = pd.read_csv(filename)
+#     order_id_list = list(set(data['platform_cid'].values.tolist()))
+#     for order_id in order_id_list:
+#         tmp_data = data[data[field]==order_id]
+#         tmp_data.to_csv(os.path.join(out_path,'%s.csv' % order_id))
 
 # 命令行处理
 def main():
@@ -265,12 +280,22 @@ def main():
     parser.add_argument('--path', default='./blog_floder/', help='批量处理的数据目录')
     parser.add_argument('--model_preDir', default='./model_predict/', help='此处加载训练好的模型(pb或ckpt)')
     parser.add_argument('--out', default='./output/', required=False, help='输出目录')
-
     args = parser.parse_args()
     path = args.path
     top = args.top
     out = args.out
     model_preDir = args.model_preDir
+
+    # if not os.path.exists(out):
+    #     os.makedirs(out)
+    #     '''
+    #     判断path是文件还是目录
+    #     如果是文件，就先做拆分目录，拆分后输出到目录
+    #     '''
+    # if os.path.isfile(path):
+    #     filename = path
+    #     path = './blog_floder/'
+    #     splitWeibo(filename)
     df = None
     for dirname in os.listdir(path):
         if dirname.split('.')[-1] == 'csv':
