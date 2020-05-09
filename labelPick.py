@@ -45,13 +45,46 @@ import time
 from sklearn.metrics import classification_report
 from sklearn import metrics
 import datetime
+'''创建钉钉播报机器人'''
+# 1、构建url
+# 2、构建一下请求头部
+import urllib.request
 
+def bobao(content):
+    #情感分析机器人
+    url = 'https://oapi.dingtalk.com/robot/send?access_token=1eb5a88de0f94c9e68d3b4a2d86b3c19cc38269b2b7d071f8855d74fa58a2c46'
+    header = {"Content-Type": "application/json", "Charset": "UTF-8"}
+    # 3、构建请求数据
+    data = {
+        "msgtype": "text",
+        "text": {"content": content},
+        "at": {
+             "atMobiles": [
+                 False
+             ],
+             "isAtAll": False
+         }  # @全体成员（在此可设置@特定某人）
+    }
+    # 4、对请求的数据进行json封装
+    sendData = json.dumps(data)  # 将字典类型数据转化为json格式
+    sendData = sendData.encode("utf-8")  # python3的Request要求data为byte类型
+
+    # 5、发送请求
+    request = urllib.request.Request(url=url, data=sendData, headers=header)
+
+    # 6、将请求发回的数据构建成为文件格式
+
+    opener = urllib.request.urlopen(request)
+    # 7、打印返回的结果
+    print(opener.read())
 
 # get all files and floders in a path
 # fileExt: ['png','jpg','jpeg']
 # return: 
 #    return a list ,include floders and files , like [['./aa'],['./aa/abc.txt']]
 def getFiles (workpath, fileExt = []):
+    get_files= '开始获取文件!'.center(50)
+    # bobao(get_files)
     try:
         lstFiles = []
         lstFloders = []
@@ -82,6 +115,8 @@ def getFiles (workpath, fileExt = []):
 
 #混淆矩阵的打印
 def skl_getMatrix():
+    skl_print = '开始打印混淆矩阵!'.center(50)
+    # bobao(skl_print)
     pass
     path = r'D:\work_space\Weibo\Weibo_multi-label-classifier\data\dataAll\dat_20200403'
     model_preDir = r'./model_predict/'
@@ -108,6 +143,8 @@ def skl_getMatrix():
 
 
 def filter_text(text):
+    data_default = '开始数据处理!'.center(50)
+    # bobao(content=data_default)
     new_text = text
     new_text = re.sub(r'<br>',r'\n',new_text)
     new_text = re.sub(r'抱歉，此微博已被作者删除。查看帮助：',r'',new_text)
@@ -142,6 +179,8 @@ def filter_text(text):
 # 输出： 处理好的句子list
 def preprocess (path):
     pass
+    pre_data = '正在读取微博数据!'.center(50)
+    # bobao(content=pre_data)
     print('正在读取微博数据...')
     df = pd.read_csv(path, sep=',', encoding='utf-8')
     data = df.dropna(subset=['blog_content'])
@@ -164,6 +203,8 @@ def preprocess (path):
 # 输出：预测分类号的list
 def predict (lstTxt,model_preDir):
     pass
+    pred_data = '开始预测!'.center(50)
+    # bobao(content=pred_data)
     res_pre = []
     filename = os.path.join(arg_dic['output_predict'], 'test_results.tsv')
     bc = Bert_Class(model_preDir)
@@ -216,6 +257,8 @@ def load_labels (fn):
 # 输入: 分类号list； 提取的个数top,默认=5
 # 输出：热门标签字符串
 def top_label (lstClass,bozhu_id,top,out):
+    fenlei = '开始分类统计top5标签!'.center(50)
+    # bobao(content=fenlei)
     pass
     if  not os.path.exists(out):
         os.makedirs(out)
@@ -227,7 +270,7 @@ def top_label (lstClass,bozhu_id,top,out):
     ret_top = lstClass[-1].most_common(int(top))
 
     count_all = Counter(lstClass[1])
-    ret_top_all = count_all.most_common(20)
+    ret_top_all = count_all.most_common(25)
     d = {i[0]: '%.4f' % (i[1] / len(lstClass[1])) for i in ret_top_all}
     label_ratio = sorted(d.items(),key=lambda item:item[1] ,reverse=True)
     #nret = {labels[k]:v for k,v in ret.items()}
@@ -252,6 +295,9 @@ def top_label (lstClass,bozhu_id,top,out):
     port = '11101'
     dbname1 = 'test'
     engine2 = create_engine("mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8" % (user, passwd, host, port, dbname1))
+    ruku = '开始入库!'.center(50)
+    # bobao(content=ruku)
+    print(df)
     pd.io.sql.to_sql(df, 'bert_result', engine2, schema='test', if_exists='append',index = False)
     # df.to_csv(os.path.join(out,'result.csv'),encoding='utf-8',index=None)
     return df
@@ -310,10 +356,10 @@ def main():
     #             df = pd.concat([df, taa], axis=0, sort=False)
     #
     # df.to_csv(os.path.join(out,'result.csv'),encoding='utf-8',index=None)
-
-
 if __name__ == '__main__':
     pass
     main()
+    aa = '程序执行结束!'.center(50)
+    bobao(content=aa)
     #获取在验证集上的混淆矩阵
     # skl_getMatrix()
